@@ -67,6 +67,7 @@ Node* create_stack()
 	while (n >= 0)
 	{
 		head = new Node{ n, head };
+		cin >> n;
 	}
 	return head;
 }
@@ -85,6 +86,16 @@ bool search(Node *head, int value)
 	}
 	return false;
 }
+
+void showAllNode(Node *head)
+{
+	while (head)
+	{
+		cout << head->data<<' ';
+		head = head->next;
+	}
+}
+
 
 Node* Task1()
 {
@@ -204,75 +215,44 @@ void Task6(Node *head)
 	}
 }
 
-void Task7(Node *l1, Node *l2)
-{
-	if (l1 == nullptr) return;
-
-	int min, prev,count=1;
-	Node *tmp1=l1, *tmp2 = l2;
-	min = tmp1->data;
-
-	while (tmp1 != nullptr)
-	{
-		if (tmp1->data < min)
-		{
-			min = tmp1->data;
-			count = 1;
-		}
-		else if (tmp1->data == min) count++;
-		tmp1 = tmp1->next;
-	}
-
-	if (l2 == nullptr)
-	{
-		tmp2 = new Node{ min, nullptr };
-		count--;
-	}
-	else
-	{
-		while (tmp2->next != nullptr) tmp2 = tmp2->next;
-	}
-
-	while (count)
-	{
-		tmp2->next = new Node{ min,nullptr };
-		tmp2 = tmp2->next;
-		count--;
-	}
-
-	bool flag = true;
-	
-	while (flag)
-	{
-		flag = false;
-		prev = min;
-		tmp1 = l1;
-		while (tmp1 != nullptr && tmp1->data <= min) { tmp1 = tmp1->next; }
-		if (tmp1 != nullptr)
-		{
-			min = tmp1->data;
-			count = 1;
-			flag = true;
-		}
-
-		while (tmp1 != nullptr)
-		{
-			if (tmp1->data < min && tmp1->data > prev)
-			{
-				min = tmp1->data;
-				count = 1;
+/////// TASK7 //////
+void bubllesort(Node*head) {
+	Node*list = head;
+	int temp = -1;
+	bool b = false;
+	while (!b) {
+		b = true;
+		list = head;
+		while (list->next&&list->next->next) {
+			if (list->next->data > list->next->next->data) {
+				b = false;
+				temp = list->next->data;
+				list->next->data = list->next->next->data;
+				list->next->next->data = temp;
 			}
-			else if (tmp1->data == min) count++;
-			tmp1 = tmp1->next;
-		}
-
-		while (count)
-		{
-			tmp2->next = new Node{ min,nullptr };
-			tmp2 = tmp2->next;
-			count--;
+			list = list->next;
 		}
 	}
+}
+
+void Task7(Node *head, Node *&l2)
+{
+	if (head == nullptr) return;
+	if (l2 != nullptr)
+	{
+		while (l2->next) { l2 = l2->next; }
+	}
+	else 
+	{
+		l2 = new Node{ head->data,nullptr };
+		head = head->next;
+	}
+	while (head)
+	{
+		l2->next = new Node{ head->next->data, l2->next };
+		head = head->next;
+	}
+	bubllesort(l2);
 }
 
 Node *Task8(Node *head)
@@ -288,12 +268,14 @@ Node *Task8(Node *head)
 	}
 	return headresult;
 }
-
-bool search(vector<int> v, int number)
+/////// TASK9 ///////
+bool search(Node *head, Node *last)
 {
-	for (int i = 0;i < v.size();++i)
+	while (head->next != last)
 	{
-		if (v[i] == number) return true;
+		if (head->data == last->data)
+			return true;
+		head = head->next;
 	}
 	return false;
 }
@@ -301,21 +283,19 @@ bool search(vector<int> v, int number)
 void Task9(Node *head)
 {
 	if (head == nullptr) return;
-	vector<int> v;
-	v.push_back(head->data);
-	while (head->next != nullptr && head != nullptr)
+	Node *list = head;
+	while (list->next != nullptr && list != nullptr)
 	{
-		if (search(v, head->next->data))
+		if (search(head, list->next))
 		{
-			Node *deleted = head->next;
-			head = head->next->next;
+			Node *deleted = list->next;
+			list->next = list->next->next;
 			deleted->next = nullptr;
 			delete deleted;
 		}
 		else
 		{
-			v.push_back(head->next->data);
-			head = head->next;
+			list = list->next;
 		}
 	}
 }
@@ -367,13 +347,24 @@ void Task11(Node *&ha, Node *&hb)
 
 
 //////////// TASK 13  ////////////
-void add_to_cycle(Node *head, int data)
+void add_to_cycle(Node *&head, int data)
 {
-	head->next = new Node{ data,head->next };
+	if (head == nullptr)
+	{
+		head = new Node{ data,nullptr };
+		head->next = head;
+	}
+	else
+	{
+		Node *list = head;
+		while (list->next != head) list = list->next;
+		list->next = new Node{ data,head };
+	}
 }
 
 void show_cycle(Node *head)
 {
+	if (head == nullptr) return;
 	Node *tmp = head;
 	do
 	{
